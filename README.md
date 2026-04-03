@@ -1,6 +1,6 @@
 # claude-skills
 
-A personal monorepo of Claude Skills — reusable instruction packages that teach Claude
+A collection Claude Skills — reusable instruction packages that teach Claude
 how to perform specific tasks in a repeatable, grounded way.
 
 Skills work across **Claude.ai**, **Claude Code**, and the **Claude API**. Build once,
@@ -65,34 +65,6 @@ claude-skills/
 ├── LICENSE
 └── package.json
 ```
-
----
-
-## Building a New Skill
-
-1. Create a new folder under `skills/`
-2. Add a `SKILL.md` with YAML frontmatter:
-
-```markdown
----
-name: your-skill-name
-description: >
-  What this skill does and when to trigger it. Be specific — this
-  description is how Claude decides whether to load your skill.
----
-
-# Your Skill Name
-
-[Instructions here...]
-```
-
-3. Add test cases to `skills/your-skill/evals/evals.json`
-4. Run `npm run package -- your-skill-name` to generate the `.skill` file
-5. Open a PR — CI will validate the skill structure automatically
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full guide.
-
----
 
 ## Scripts
 
