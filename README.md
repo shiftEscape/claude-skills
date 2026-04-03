@@ -1,6 +1,6 @@
 # claude-skills
 
-A collection Claude Skills — reusable instruction packages that teach Claude
+A collection of curated Claude Skills — reusable instruction packages that teach Claude
 how to perform specific tasks in a repeatable, grounded way.
 
 Skills work across **Claude.ai**, **Claude Code**, and the **Claude API**. Build once,
