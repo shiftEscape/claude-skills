@@ -1,0 +1,22 @@
+node_modules/
+dist/
+*.skill
+!skills/**/*.skill
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# generated files
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp

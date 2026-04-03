@@ -1,0 +1,105 @@
+{
+  "skill_name": "spec-forge",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here's our internal payments API spec:\n\n```yaml\nopenapi: 3.0.0\ninfo:\n  title: Payments API\n  version: 2.1.0\npaths:\n  /payments:\n    post:\n      summary: Create a payment\n      requestBody:\n        required: true\n        content:\n          application/json:\n            schema:\n              type: object\n              required: [amount, currency, source_id]\n              properties:\n                amount:\n                  type: integer\n                  description: Amount in smallest currency unit (e.g. cents)\n                currency:\n                  type: string\n                  enum: [usd, eur, gbp]\n                source_id:\n                  type: string\n                  description: Payment method token\n                metadata:\n                  type: object\n                  description: Optional key-value pairs\n      responses:\n        '201':\n          description: Payment created\n          content:\n            application/json:\n              schema:\n                type: object\n                properties:\n                  id: { type: string }\n                  status: { type: string, enum: [pending, completed, failed] }\n                  created_at: { type: string, format: date-time }\n        '400':\n          description: Invalid request\n        '422':\n          description: Payment declined\n  /payments/{id}:\n    get:\n      summary: Get a payment\n      parameters:\n        - name: id\n          in: path\n          required: true\n          schema: { type: string }\n      responses:\n        '200':\n          description: Payment details\n        '404':\n          description: Payment not found\nsecurity:\n  - BearerAuth: []\ncomponents:\n  securitySchemes:\n    BearerAuth:\n      type: http\n      scheme: bearer\n```\n\nWrite me a TypeScript function to create a payment.",
+      "expected_output": "TypeScript function using exact field names from spec (amount as integer, currency as enum usd/eur/gbp, source_id), Bearer auth header, handles 201/400/422 response codes, no invented fields",
+      "assertions": [
+        {
+          "text": "Uses exact field name 'source_id' (not 'sourceId' or 'source' or 'payment_method')",
+          "type": "content_check"
+        },
+        {
+          "text": "Uses Bearer token authentication as documented in the spec",
+          "type": "content_check"
+        },
+        {
+          "text": "Amount is typed as number/integer, not string",
+          "type": "content_check"
+        },
+        {
+          "text": "Handles at least the 400 and 422 error responses",
+          "type": "content_check"
+        },
+        {
+          "text": "Does not invent fields not in the spec (e.g. no 'description', 'customer_id' unless from spec)",
+          "type": "content_check"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I've been using this API for a while. Here's my existing code — can you check it against the spec?\n\n```python\nimport requests\n\ndef create_payment(amount, currency, source):\n    response = requests.post(\n        'https://api.example.com/v1/payments',\n        headers={'Authorization': f'ApiKey {API_KEY}'},\n        json={\n            'amount': str(amount),  # convert to string\n            'currency': currency,\n            'source': source,\n            'description': 'Payment from app'\n        }\n    )\n    return response.json()\n```\n\nSpec is the same Payments API from before.",
+      "expected_output": "Validation report flagging: wrong auth (ApiKey vs Bearer), amount should be integer not string, 'source' should be 'source_id', 'description' is not a documented field",
+      "assertions": [
+        {
+          "text": "Flags wrong auth scheme (ApiKey vs Bearer)",
+          "type": "content_check"
+        },
+        {
+          "text": "Flags amount being cast to string instead of staying as integer",
+          "type": "content_check"
+        },
+        {
+          "text": "Flags 'source' should be 'source_id'",
+          "type": "content_check"
+        },
+        {
+          "text": "Flags 'description' as undocumented field",
+          "type": "content_check"
+        },
+        {
+          "text": "Does not make up additional errors that aren't real spec violations",
+          "type": "content_check"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Does the Payments API support refunds? Also what happens if I send a payment with an unsupported currency like JPY?",
+      "expected_output": "Honestly says refunds are not in the spec (not documented), and correctly states JPY is not in the currency enum (only usd/eur/gbp) — likely a 400 or 422 — without inventing behavior",
+      "assertions": [
+        {
+          "text": "Correctly states refunds are not documented in the spec",
+          "type": "content_check"
+        },
+        {
+          "text": "Correctly identifies JPY is not in the enum (usd, eur, gbp only)",
+          "type": "content_check"
+        },
+        {
+          "text": "Does not invent a /refunds endpoint or suggest it definitely exists",
+          "type": "content_check"
+        },
+        {
+          "text": "Recommends verifying undocumented behavior rather than guessing definitively",
+          "type": "content_check"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Generate curl examples for all the Payments API endpoints.",
+      "expected_output": "Curl commands for POST /payments and GET /payments/{id}, with correct Bearer auth header, correct field names, realistic placeholder values",
+      "assertions": [
+        {
+          "text": "Produces curl for POST /payments with correct fields",
+          "type": "content_check"
+        },
+        {
+          "text": "Produces curl for GET /payments/{id}",
+          "type": "content_check"
+        },
+        {
+          "text": "Uses Authorization: Bearer header (not ApiKey, not Basic)",
+          "type": "content_check"
+        },
+        {
+          "text": "Uses placeholder values that are clearly placeholders (not real credentials)",
+          "type": "content_check"
+        }
+      ]
+    }
+  ]
+}

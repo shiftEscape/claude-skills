@@ -1,0 +1,40 @@
+name: Validate Skills
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/**'
+      - 'scripts/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'skills/**'
+      - 'scripts/**'
+
+jobs:
+  validate:
+    name: Validate skill structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate all skills
+        run: node scripts/validate.js
+
+      - name: Package all skills
+        run: node scripts/package.js --all
+
+      - name: Upload packaged skills as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-files
+          path: dist/*.skill
+          retention-days: 30

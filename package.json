@@ -1,0 +1,19 @@
+{
+  "name": "claude-skills",
+  "version": "1.0.0",
+  "description": "Personal monorepo of Claude Skills",
+  "private": true,
+  "scripts": {
+    "package": "node scripts/package.js",
+    "package:all": "node scripts/package.js --all",
+    "validate": "node scripts/validate.js",
+    "install-all": "bash scripts/install-all.sh"
+  },
+  "keywords": [
+    "claude",
+    "claude-skills",
+    "ai",
+    "anthropic"
+  ],
+  "license": "MIT"
+}
