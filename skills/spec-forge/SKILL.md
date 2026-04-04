@@ -2,6 +2,7 @@
 name: spec-forge
 metadata:
   author: "@shiftEscape"
+  version: "1.0.0"
 description: >
   Ingest any API spec, OpenAPI/Swagger file, SDK docs, or library README and become a
   grounded expert on it — answering questions, generating code, and validating usage

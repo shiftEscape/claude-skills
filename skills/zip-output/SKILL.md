@@ -1,5 +1,8 @@
 ---
 name: zip-output
+metadata:
+  author: "@shiftEscape"
+  version: "1.0.0"
 description: >
   Ensures Claude always produces ZIP files with the correct internal folder structure when delivering multi-file outputs. Use this skill whenever the user asks Claude to: generate a project, scaffold a codebase, deliver multiple files for download, create a ZIP archive, bundle outputs, or says things like "zip it up", "give me the files", "package this for me", "create a project structure", "make it downloadable", or "export as ZIP". Also trigger when Claude is about to write more than 2 files that belong together — even if the user hasn't mentioned ZIP yet. The skill enforces correct folder hierarchy inside the archive so files unzip into a clean, properly named root folder instead of dumping loose files into the current directory.
 ---
@@ -99,12 +102,12 @@ Use this priority order to determine the root folder name:
 
 Always lowercase, hyphen-separated. No spaces. No version suffixes unless the user asked for them.
 
-| Bad root name | Good root name |
-|---|---|
-| `Project Files/` | `project-files/` |
-| `My App (1)/` | `my-app/` |
-| `output/` | `invoice-generator/` |
-| (none — files at root) | `dashboard/` |
+| Bad root name          | Good root name       |
+| ---------------------- | -------------------- |
+| `Project Files/`       | `project-files/`     |
+| `My App (1)/`          | `my-app/`            |
+| `output/`              | `invoice-generator/` |
+| (none — files at root) | `dashboard/`         |
 
 ---
 
