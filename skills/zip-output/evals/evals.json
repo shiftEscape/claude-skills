@@ -1,0 +1,90 @@
+{
+  "skill_name": "zip-output",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a simple landing page project with an index.html, a styles/main.css, and a scripts/app.js. Zip it up for me to download.",
+      "expected_output": "A ZIP file named landing-page.zip (or similar) where all files live inside a single root folder (e.g. landing-page/), not loose at the archive root.",
+      "expectations": [
+        "The ZIP file contains exactly one top-level folder (e.g. landing-page/)",
+        "index.html is located at landing-page/index.html, not at the root of the ZIP",
+        "styles/main.css is at landing-page/styles/main.css",
+        "scripts/app.js is at landing-page/scripts/app.js",
+        "The skill used build_zip.py or an equivalent method that guarantees the root folder",
+        "verify_zip.py passes (or equivalent check confirms structure is correct)",
+        "The file is presented to the user via present_files"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Scaffold a Python Flask API project for me with app.py, requirements.txt, and a routes/ folder containing health.py and users.py. Give me the files.",
+      "expected_output": "A ZIP archive where all files live under a single named root folder (e.g. flask-api/), preserving the routes/ subdirectory.",
+      "expectations": [
+        "The ZIP has exactly one top-level folder",
+        "app.py is inside the root folder, not at the archive root",
+        "routes/health.py and routes/users.py preserve the subdirectory structure inside the root folder",
+        "requirements.txt is inside the root folder",
+        "The root folder name is meaningful (e.g. flask-api/, not output/ or tmp/)",
+        "The ZIP is presented for download"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Package this for me — I need a downloadable ZIP of a React component library with src/Button.jsx, src/Modal.jsx, src/index.js, and a package.json.",
+      "expected_output": "A correctly structured ZIP where all files are nested inside one root folder matching the project name.",
+      "expectations": [
+        "The ZIP contains exactly one root-level folder",
+        "src/Button.jsx, src/Modal.jsx, and src/index.js are all nested inside that root folder under src/",
+        "package.json is inside the root folder",
+        "No files appear loose at the archive root",
+        "The root folder name reflects the project (not generic names like 'files' or 'output')"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Create a ZIP of two separate mini-projects: a todo-app with index.html and app.js, and a calculator with index.html and calc.js. Bundle them together.",
+      "expected_output": "A ZIP where both projects are nested under a single root folder (e.g. projects/todo-app/ and projects/calculator/), not loose at the root.",
+      "expectations": [
+        "The ZIP contains exactly one top-level root folder",
+        "todo-app/ and calculator/ are subdirectories inside that root folder",
+        "Each sub-project's files are inside their respective subdirectory",
+        "No files or folders appear loose at the archive root"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Write me three config files: .env.example, docker-compose.yml, and nginx.conf. Zip them and make them downloadable.",
+      "expected_output": "A ZIP with all three config files inside a single named root folder.",
+      "expectations": [
+        "All three files (.env.example, docker-compose.yml, nginx.conf) are inside a root folder",
+        "No files are loose at the archive root",
+        "The .env.example file is included (dotfiles should not be excluded)",
+        "The ZIP is presented to the user for download"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I asked you to make me a project earlier and the ZIP you gave me has all files dumped at the root with no folder. Can you fix it?",
+      "expected_output": "Claude re-packages the project correctly with a single root folder and verifies the structure before presenting.",
+      "expectations": [
+        "Claude acknowledges the structure problem",
+        "The re-packaged ZIP has exactly one top-level root folder",
+        "verify_zip.py (or equivalent check) is used to confirm the fix",
+        "The corrected ZIP is presented to the user"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Make me a Node.js CLI tool project. I want: bin/cli.js, lib/commands/init.js, lib/commands/run.js, lib/utils.js, package.json, and a README.md. Export as ZIP.",
+      "expected_output": "A deeply nested project ZIP with all directories preserved under one root folder.",
+      "expectations": [
+        "The ZIP has exactly one top-level folder",
+        "bin/cli.js is at root-folder/bin/cli.js",
+        "lib/commands/init.js and lib/commands/run.js preserve the nested lib/commands/ structure",
+        "lib/utils.js, package.json, and README.md are all inside the root folder",
+        "No flattening of subdirectories has occurred",
+        "The ZIP is made available for download"
+      ]
+    }
+  ]
+}
