@@ -10,9 +10,10 @@ use everywhere.
 
 ## Skills
 
-| Skill                              | Description                                                                                                        | Install                                             |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
-| [spec-forge](./skills/spec-forge/) | Ingest any API spec or SDK docs and become a grounded expert — generate code, validate integrations, diff versions | [📦 Download](./skills/spec-forge/spec-forge.skill) |
+| Skill                              | Description                                                                                                               | Install                                             |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| [spec-forge](./skills/spec-forge/) | Ingest any API spec or SDK docs and become a grounded expert — generate code, validate integrations, diff versions        | [📦 Download](./skills/spec-forge/spec-forge.skill) |
+| [zip-output](./skills/zip-output/) | Ensures Claude always produces ZIPs with the correct folder structure — files unzip into a clean root folder, never loose | [📦 Download](./skills/zip-output/zip-output.skill) |
 
 ---
 
@@ -42,29 +43,6 @@ npm run install-all
 ```
 
 ---
-
-## Repo Structure
-
-```
-claude-skills/
-├── skills/                   # One folder per skill
-│   └── spec-forge/
-│       ├── SKILL.md          # Skill instructions + frontmatter (required)
-│       ├── evals/            # Test cases for the skill
-│       │   └── evals.json
-│       ├── references/       # Reference docs loaded on demand
-│       └── assets/           # Templates, fonts, icons used in output
-├── scripts/                  # Repo-level utilities
-│   ├── package-all.sh        # Package all skills into .skill files
-│   └── install-all.sh        # Install all skills into Claude Code
-├── .github/
-│   └── workflows/
-│       └── validate.yml      # CI: validate all skills on push
-├── README.md
-├── CONTRIBUTING.md
-├── LICENSE
-└── package.json
-```
 
 ## Scripts
 
