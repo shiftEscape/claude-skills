@@ -1,0 +1,148 @@
+{
+  "skill_name": "rosetta",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here's a React component using next-intl. Can you extract all hardcoded strings and set up the translation keys?\n\n```tsx\n// src/components/LoginForm.tsx\nexport function LoginForm() {\n  const [error, setError] = useState('');\n\n  return (\n    <div>\n      <h1>Welcome back</h1>\n      <p>Log in to your account to continue</p>\n      <input type=\"email\" placeholder=\"Email address\" />\n      <input type=\"password\" placeholder=\"Password\" />\n      <a href=\"/forgot\">Forgot your password?</a>\n      <button type=\"submit\">Log in</button>\n      {error && <p className=\"error\">{error}</p>}\n      <p>Don't have an account? <a href=\"/register\">Sign up</a></p>\n    </div>\n  );\n}\n```",
+      "expected_output": "Extracts all user-facing strings (heading, subtitle, placeholders, link text, button, sign up link), generates dot-notation keys scoped to LoginForm, shows before/after code diff with t() calls, outputs keys for en.json. Skips className string. Flags the dynamic error string.",
+      "assertions": [
+        {
+          "text": "Extracts 'Welcome back' and generates a key like LoginForm.title or auth.login.title",
+          "type": "content_check"
+        },
+        {
+          "text": "Extracts both placeholder strings (Email address, Password)",
+          "type": "content_check"
+        },
+        {
+          "text": "Extracts 'Forgot your password?' link text",
+          "type": "content_check"
+        },
+        {
+          "text": "Extracts 'Log in' button text",
+          "type": "content_check"
+        },
+        {
+          "text": "Does NOT extract 'error' className string",
+          "type": "content_check"
+        },
+        {
+          "text": "Shows before/after code diff with t() or useTranslations wrapping",
+          "type": "content_check"
+        },
+        {
+          "text": "Outputs a JSON block with all new keys for en.json",
+          "type": "content_check"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Audit my translation coverage. Here are my locale files:\n\nen.json:\n```json\n{\n  \"common\": {\n    \"save\": \"Save\",\n    \"cancel\": \"Cancel\",\n    \"loading\": \"Loading...\",\n    \"error\": \"Something went wrong\"\n  },\n  \"auth\": {\n    \"login\": {\n      \"title\": \"Log in\",\n      \"submit\": \"Log in\",\n      \"forgot_password\": \"Forgot your password?\"\n    }\n  },\n  \"dashboard\": {\n    \"welcome\": \"Welcome, {name}!\",\n    \"items_count\": \"{count, plural, one {# item} other {# items}}\"\n  }\n}\n```\n\nes.json:\n```json\n{\n  \"common\": {\n    \"save\": \"Guardar\",\n    \"cancel\": \"Cancelar\"\n  },\n  \"auth\": {\n    \"login\": {\n      \"title\": \"Iniciar sesión\",\n      \"submit\": \"Iniciar sesión\"\n    }\n  },\n  \"dashboard\": {\n    \"welcome\": \"¡Bienvenido, {nombre}!\"\n  }\n}\n```",
+      "expected_output": "Coverage report showing es is missing: common.loading, common.error, auth.login.forgot_password, dashboard.items_count. Also flags placeholder mismatch: en uses {name} but es uses {nombre}. Shows coverage percentage.",
+      "assertions": [
+        {
+          "text": "Reports missing keys: common.loading, common.error, auth.login.forgot_password, dashboard.items_count",
+          "type": "content_check"
+        },
+        {
+          "text": "Flags placeholder mismatch between {name} (en) and {nombre} (es)",
+          "type": "content_check"
+        },
+        {
+          "text": "Shows a coverage percentage for Spanish",
+          "type": "content_check"
+        },
+        {
+          "text": "Structures output clearly with missing keys listed",
+          "type": "content_check"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need to add i18n to my Vue 3 app. It currently has no i18n setup at all. Here's a sample component:\n\n```vue\n<template>\n  <div>\n    <h2>Your Profile</h2>\n    <label>Display name</label>\n    <input v-model=\"name\" placeholder=\"Enter your name\" />\n    <button @click=\"save\">Save changes</button>\n    <p v-if=\"saved\">Changes saved successfully!</p>\n  </div>\n</template>\n```\n\nWe want to support English and Japanese.",
+      "expected_output": "Recommends vue-i18n, provides install and setup instructions, shows the component rewritten with $t() calls, provides initial en.json and ja.json (Japanese values left as TODO or empty), generates appropriate keys",
+      "assertions": [
+        {
+          "text": "Recommends vue-i18n as the library",
+          "type": "content_check"
+        },
+        {
+          "text": "Provides install command (npm install vue-i18n)",
+          "type": "content_check"
+        },
+        {
+          "text": "Shows component rewritten using $t() or useI18n",
+          "type": "content_check"
+        },
+        {
+          "text": "Generates en.json with all extracted strings",
+          "type": "content_check"
+        },
+        {
+          "text": "Mentions Japanese locale file (ja.json) with empty or TODO values — does NOT invent Japanese translations",
+          "type": "content_check"
+        },
+        {
+          "text": "Mentions Japanese has no plural forms (nplurals=1)",
+          "type": "content_check"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Check this code — does it have any i18n issues?\n\n```typescript\n// NotificationService.ts\nexport class NotificationService {\n  send(type: string, userId: string) {\n    const messages = {\n      welcome: 'Welcome to our platform!',\n      payment_success: `Your payment of $${amount} was successful`,\n      password_reset: 'Check your email for reset instructions',\n    };\n\n    const log = `Notification sent to user ${userId}`; // internal log\n    const cssClass = 'notification-banner'; // CSS\n    const apiEndpoint = '/api/notify'; // URL\n\n    return messages[type];\n  }\n}\n```",
+      "expected_output": "Flags welcome, payment_success, password_reset as user-facing strings needing i18n. Correctly skips the log string, cssClass, and apiEndpoint. Also flags the hardcoded $ currency symbol as a localization issue — should use Intl.NumberFormat. Warns about dynamic key pattern messages[type].",
+      "assertions": [
+        {
+          "text": "Flags 'Welcome to our platform!' as needing i18n",
+          "type": "content_check"
+        },
+        {
+          "text": "Flags payment_success message as needing i18n",
+          "type": "content_check"
+        },
+        {
+          "text": "Flags hardcoded $ currency symbol as a localization issue",
+          "type": "content_check"
+        },
+        {
+          "text": "Does NOT flag the internal log string, cssClass, or apiEndpoint",
+          "type": "content_check"
+        },
+        {
+          "text": "Warns about dynamic key lookup (messages[type]) being undetectable by static analysis",
+          "type": "content_check"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I have these keys in my en.json. Are the key names good? How would you improve them?\n\n```json\n{\n  \"text1\": \"Save\",\n  \"button\": \"Cancel\",\n  \"Save Changes\": \"Save Changes\",\n  \"en_welcome\": \"Welcome\",\n  \"err\": \"An error occurred\",\n  \"usrNm\": \"Username\"\n}\n```",
+      "expected_output": "Identifies all anti-patterns: text1/button are non-descriptive, 'Save Changes' uses value as key, en_welcome hard-codes language, err/usrNm are cryptic abbreviations. Proposes improved keys like common.save, common.cancel, auth.login.title, errors.generic, auth.form.username_label",
+      "assertions": [
+        {
+          "text": "Flags 'text1' and 'button' as non-descriptive keys",
+          "type": "content_check"
+        },
+        {
+          "text": "Flags 'Save Changes' as using the string value as the key",
+          "type": "content_check"
+        },
+        {
+          "text": "Flags 'en_welcome' for hardcoding language in key name",
+          "type": "content_check"
+        },
+        {
+          "text": "Flags 'err' and 'usrNm' as cryptic abbreviations",
+          "type": "content_check"
+        },
+        {
+          "text": "Proposes improved namespaced key names for all 6 keys",
+          "type": "content_check"
+        }
+      ]
+    }
+  ]
+}

@@ -31,11 +31,11 @@ When a spec is present, that spec is the only truth. Training data is irrelevant
 
 Load these on demand — only when actually needed for the current task:
 
-| File                               | Load when...                                                                                                                                                  |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| File | Load when... |
+|------|-------------|
 | `references/openapi-cheatsheet.md` | Spec is OpenAPI/Swagger (JSON or YAML). Covers `$ref` resolution, `allOf`/`oneOf`/`anyOf`, security schemes, pagination patterns, and common parsing gotchas. |
-| `references/auth-patterns.md`      | User asks about authentication, needs auth code, or the spec has non-trivial auth (OAuth2, HMAC signing, mTLS, token refresh).                                |
-| `references/code-gen-patterns.md`  | Generating client code in any language. Covers typed models, pagination loops, retry logic, streaming, and error handling per language.                       |
+| `references/auth-patterns.md` | User asks about authentication, needs auth code, or the spec has non-trivial auth (OAuth2, HMAC signing, mTLS, token refresh). |
+| `references/code-gen-patterns.md` | Generating client code in any language. Covers typed models, pagination loops, retry logic, streaming, and error handling per language. |
 
 Do not load all three upfront. Load only what the current task requires.
 
@@ -47,7 +47,6 @@ When the user provides a spec or docs, your first job is to read and understand 
 completely before doing anything else.
 
 ### What to accept
-
 - OpenAPI / Swagger files (JSON or YAML, any version)
 - SDK READMEs and documentation pages
 - URLs to API docs (use web fetch to retrieve)
@@ -60,37 +59,31 @@ completely before doing anything else.
 Work through the spec systematically and build a mental model covering:
 
 **Structure & Resources**
-
 - What resources/endpoints/methods exist
 - How they're organized and what they represent
 - Relationships between resources
 
 **Authentication**
-
 - What auth methods are supported (API key, OAuth2, Bearer, Basic, etc.)
 - Where credentials go (header, query param, body)
 - Any token refresh or scoping patterns
 
 **Request Patterns**
-
 - Required vs optional parameters for each operation
 - Request body schemas and content types
 - Common query parameters that apply broadly
 
 **Response Patterns**
-
 - Success response shapes and status codes
 - Error response structure and all documented error codes
 - Pagination patterns (cursor, offset, page-based, etc.)
 
 **Constraints & Policies**
-
 - Rate limiting rules (requests/sec, daily quotas, retry guidance)
 - Deprecated methods or fields (flag these prominently)
 - Versioning approach
 
 **SDK-specific (if applicable)**
-
 - Class/module structure
 - Initialization patterns
 - Key interfaces and their method signatures
@@ -162,7 +155,6 @@ to be a spec expert, not a probabilistic guesser.
 ### Code Generation
 
 When writing code from a spec:
-
 - Use the exact method names, parameter names, and response fields from the spec
 - Generate typed models/interfaces directly from the schema definitions
 - Include auth setup using the documented pattern
@@ -170,14 +162,12 @@ When writing code from a spec:
 - Default to the language the user is working in; ask if unclear
 
 For REST APIs, offer to generate:
-
 - A minimal working client (auth + one real call)
 - Full CRUD for a given resource
 - Error handling boilerplate
 - Typed request/response models
 
 For SDKs, offer to generate:
-
 - Initialization and configuration code
 - Usage examples for the key methods
 - Error handling patterns
@@ -185,7 +175,6 @@ For SDKs, offer to generate:
 ### Validation Mode
 
 When the user pastes existing code and asks you to check it against the spec:
-
 - Check method/function names against what the spec actually defines
 - Verify parameter names and types match the schema
 - Check that required fields are present
@@ -196,13 +185,11 @@ When the user pastes existing code and asks you to check it against the spec:
 ### Curl & Collection Generation
 
 When asked for curl examples:
-
 - Generate one per endpoint/operation, using the documented parameters
 - Include auth headers as documented
 - Use realistic but obviously-placeholder values for required fields
 
 When asked for a Postman or Bruno collection structure:
-
 - Organize by resource/tag as defined in the spec
 - Include all operations with their documented parameters
 - Set up auth at the collection level if applicable
@@ -210,7 +197,6 @@ When asked for a Postman or Bruno collection structure:
 ### Version Diffing
 
 When the user provides two versions of a spec:
-
 - Identify added endpoints/methods
 - Identify removed or deprecated endpoints/methods
 - Flag changed parameter names, types, or requirement status
@@ -262,7 +248,6 @@ broken integrations.
 ## Multi-Source Handling
 
 When the user provides multiple specs or doc sources at once:
-
 - Ingest all of them
 - Note where they overlap (e.g. auth is documented in the auth SDK, not the main spec)
 - Produce a combined Orientation Report that covers all sources
@@ -274,7 +259,6 @@ When the user provides multiple specs or doc sources at once:
 
 Large specs (hundreds of endpoints, extensive schemas) can be unwieldy. When faced
 with one:
-
 - Focus the Orientation Report on the top-level structure and most important resources
 - Let the user direct which areas to go deep on
 - Don't try to memorize everything — stay grounded in what's relevant to the current task
