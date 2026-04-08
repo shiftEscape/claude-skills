@@ -1,55 +1,60 @@
-# zip-output
+# claude-skills
 
-Fixes a common pain point: when asked to produce a ZIP file, Claude often dumps files flat at the archive root instead of nesting them inside a properly named folder. This skill enforces the correct structure every time.
+A collection of curated Claude Skills — reusable instruction packages that teach Claude
+how to perform specific tasks in a repeatable, grounded way.
 
-A Claude Skill by [@shiftEscape](https://github.com/shiftEscape)
+Skills work across **Claude.ai**, **Claude Code**, and the **Claude API**. Build once,
+use everywhere.
 
-## The Problem
+---
 
-Without this skill, Claude produces ZIPs like this:
+## Skills
 
-```
-my-project.zip
-├── index.html        ← loose at root ❌
-├── style.css         ← loose at root ❌
-└── app.js            ← loose at root ❌
-```
+| Skill                              | Description                                                                                                               | Install                                             |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| [spec-forge](./skills/spec-forge/) | Ingest any API spec or SDK docs and become a grounded expert — generate code, validate integrations, diff versions        | [📦 Download](./skills/spec-forge/spec-forge.skill) |
+| [zip-output](./skills/zip-output/) | Ensures Claude always produces ZIPs with the correct folder structure — files unzip into a clean root folder, never loose | [📦 Download](./skills/zip-output/zip-output.skill) |
 
-Unzipping this pollutes your current directory with loose files. With this skill installed, you always get:
+---
 
-```
-my-project.zip
-└── my-project/       ← single root folder ✅
-    ├── index.html
-    ├── style.css
-    └── app.js
-```
+## Getting Started
 
-## When It Triggers
+### Install a skill in Claude.ai
 
-This skill activates whenever you ask Claude to:
-
-- Generate a project or scaffold a codebase for download
-- "Zip it up", "give me the files", "package this", "make it downloadable"
-- Export as ZIP or create an archive
-- Produce more than 2 related files that belong together (even without mentioning ZIP)
-
-## Installation
-
-**Claude.ai / Claude Code:**
-
-1. Download `zip-output.skill` from [Releases](../../releases)
+1. Download the `.skill` file from the table above
 2. Go to **Settings → Skills → Install from file**
 3. Upload the `.skill` file
+4. The skill activates automatically when relevant
 
-**Manual (Claude Code):**
+### Install a skill in Claude Code
 
 ```bash
-cp -r zip-output .claude/skills/zip-output
+# From this repo directly
+npx skills add https://github.com/YOUR_USERNAME/my-claude-skills --skill spec-forge
+
+# Or manually — copy the skill folder into your project
+cp -r skills/spec-forge .claude/skills/spec-forge
 ```
 
-Produces `dist/zip-output.skill`.
+### Install all skills at once (Claude Code)
+
+```bash
+npm run install-all
+```
+
+---
+
+## Scripts
+
+| Command                      | Description                                 |
+| ---------------------------- | ------------------------------------------- |
+| `npm run package -- <skill>` | Package a single skill into a `.skill` file |
+| `npm run package:all`        | Package all skills                          |
+| `npm run validate`           | Validate all skill structures               |
+| `npm run install-all`        | Install all skills into `.claude/skills/`   |
+
+---
 
 ## License
 
-MIT — see [LICENSE](../../LICENSE)
+MIT — see [LICENSE](./LICENSE)

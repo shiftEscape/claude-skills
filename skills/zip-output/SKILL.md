@@ -1,60 +1,77 @@
 ---
 name: zip-output
+description: >
+  Enforces correct ZIP folder structure when Claude produces a ZIP file. Use this skill
+  when the user explicitly asks for a ZIP, a downloadable archive, or says things like
+  "zip it up", "package this", "make it downloadable", "export as ZIP". Do NOT trigger
+  this skill proactively — only activate when a ZIP is the agreed delivery format.
+  When files are being updated after an initial ZIP, do not re-ZIP automatically;
+  follow the partial update rules instead.
 metadata:
   author: "@shiftEscape"
   version: "1.0.0"
-description: >
-  Ensures Claude always produces ZIP files with the correct internal folder structure when delivering multi-file outputs. Use this skill whenever the user asks Claude to: generate a project, scaffold a codebase, deliver multiple files for download, create a ZIP archive, bundle outputs, or says things like "zip it up", "give me the files", "package this for me", "create a project structure", "make it downloadable", or "export as ZIP". Also trigger when Claude is about to write more than 2 files that belong together — even if the user hasn't mentioned ZIP yet. The skill enforces correct folder hierarchy inside the archive so files unzip into a clean, properly named root folder instead of dumping loose files into the current directory.
 ---
 
 # ZIP Output — Correct Folder Structure
 
-Claude has a well-known failure mode: when producing ZIP files, it dumps files flat at the archive root instead of nesting them inside a properly named folder. This skill eliminates that.
+This skill solves one specific problem: **Claude presents a folder structure, then produces a ZIP that doesn't match it.**
 
-**The rule is simple:** every ZIP must unzip into exactly one root folder named after the project.
+It does NOT decide when to use ZIP. That decision belongs to Claude or the user. This skill only kicks in once a ZIP is already the agreed delivery format — and ensures what's inside matches what was promised.
 
 ---
 
-## The Problem
+## The Core Problem
 
-When a user asks for a project ZIP, Claude often produces:
+Claude often presents a planned structure like this:
+
+```
+my-project/
+├── index.html
+├── src/
+│   └── app.js
+└── styles/
+    └── main.css
+```
+
+Then produces a ZIP where the structure is wrong:
 
 ```
 my-project.zip
-├── index.html          ← loose at root ❌
-├── style.css           ← loose at root ❌
-└── app.js              ← loose at root ❌
+├── index.html       ← loose at root, no src/ or styles/ ❌
+├── app.js           ← subdirectory stripped ❌
+└── main.css         ← subdirectory stripped ❌
 ```
 
-Unzipping this dumps files directly into wherever the user runs the command — polluting their directory.
-
-**What it should look like:**
-
-```
-my-project.zip
-└── my-project/         ← single root folder ✅
-    ├── index.html
-    ├── style.css
-    └── app.js
-```
+**The rule:** the ZIP must exactly mirror the folder structure Claude described or the user expects. No flattening. No missing folders. No loose files at the archive root.
 
 ---
 
-## Rules to Always Follow
+## When to Apply This Skill
 
-1. **Single root folder** — Every ZIP must contain exactly one top-level folder named after the project (e.g. `my-project/`, `invoice-app/`, `portfolio/`).
-2. **Folder name matches ZIP name** — If the file is `dashboard.zip`, the root folder inside must be `dashboard/`.
-3. **No loose files at root** — Nothing sits directly at the archive root except that one folder.
-4. **Nested structure preserved** — All subdirectories (`src/`, `public/`, `components/`, etc.) live inside the root folder, not flattened.
-5. **Use the script** — Always use `scripts/build_zip.py` to create the archive. Never use raw `zip` CLI commands or Python `zipfile` without the wrapper, as they silently produce the wrong structure.
+| Situation                                                      | Action                                  |
+| -------------------------------------------------------------- | --------------------------------------- |
+| User explicitly asks for a ZIP                                 | Apply this skill when building the ZIP  |
+| Claude and user have agreed ZIP is the format                  | Apply this skill                        |
+| Claude is about to output multiple files with no ZIP requested | Do NOT zip — present files individually |
+| A ZIP was already delivered and some files need updating       | Follow Partial Update Rules below       |
 
 ---
 
-## Workflow
+## ZIP Structure Rules
 
-### Step 1 — Write all files to disk first
+1. **Single root folder** — Every ZIP must have exactly one top-level folder named after the project.
+2. **Structure must match what was presented** — If Claude showed a tree with `src/`, `styles/`, `components/`, those directories must exist inside the ZIP at the correct depth.
+3. **No loose files at root** — Nothing sits directly at the archive root except the one root folder.
+4. **No flattening** — Nested paths like `src/components/Button.jsx` must not become `Button.jsx`.
+5. **Use `build_zip.py`** — Never use raw `zip` CLI or bare `zipfile` — both silently produce wrong structures.
 
-Write every file to a staging folder under `/home/claude/<project-name>/`. Maintain the exact folder hierarchy the user expects:
+---
+
+## Workflow: Producing a ZIP
+
+### Step 1 — Write the structure first
+
+Before zipping anything, write every file to a staging folder that **exactly mirrors the planned structure**:
 
 ```
 /home/claude/my-project/
@@ -65,26 +82,25 @@ Write every file to a staging folder under `/home/claude/<project-name>/`. Maint
     └── main.css
 ```
 
-### Step 2 — Run the packaging script
+If the structure on disk doesn't match what was presented to the user, fix it before zipping. The ZIP is a snapshot of the staging folder — garbage in, garbage out.
+
+### Step 2 — Build the ZIP
 
 ```bash
-python /home/claude/zip-outputs/zip-output/scripts/build_zip.py \
+python scripts/build_zip.py \
   /home/claude/my-project \
   /mnt/user-data/outputs/my-project.zip
 ```
 
-The script enforces the single-root-folder rule automatically — no manual configuration needed.
-
-### Step 3 — Verify the structure (optional but recommended for complex projects)
+### Step 3 — Verify the structure matches
 
 ```bash
-python /home/claude/zip-outputs/zip-output/scripts/verify_zip.py \
-  /mnt/user-data/outputs/my-project.zip
+python scripts/verify_zip.py /mnt/user-data/outputs/my-project.zip
 ```
 
-This prints the ZIP tree and confirms the root folder rule is satisfied. If verification fails, it exits with a non-zero code and explains what's wrong.
+Review the printed tree. Confirm it matches what was presented to the user. If it doesn't, fix the staging folder and re-run Step 2.
 
-### Step 4 — Present the file
+### Step 4 — Present
 
 ```python
 present_files(["/mnt/user-data/outputs/my-project.zip"])
@@ -92,59 +108,81 @@ present_files(["/mnt/user-data/outputs/my-project.zip"])
 
 ---
 
-## Naming the Root Folder
+## Partial Update Rules
 
-Use this priority order to determine the root folder name:
+When a ZIP has already been delivered and the user asks to update files, **do not automatically re-ZIP**. Follow this:
 
-1. **User specified it** — e.g. "call it `invoice-generator`" → use that exactly
-2. **Project has an obvious name** — derive from the main file, repo name, or topic
-3. **Fallback** — use the ZIP filename without extension
+### Some files updated (not all)
 
-Always lowercase, hyphen-separated. No spaces. No version suffixes unless the user asked for them.
+Present only the changed files individually. Tell the user which path each file belongs to so they can replace it in their local copy.
 
-| Bad root name          | Good root name       |
-| ---------------------- | -------------------- |
-| `Project Files/`       | `project-files/`     |
-| `My App (1)/`          | `my-app/`            |
-| `output/`              | `invoice-generator/` |
-| (none — files at root) | `dashboard/`         |
+```
+Here are the updated files — replace them in your local my-project/ folder:
+- src/app.js  →  my-project/src/app.js
+- styles/main.css  →  my-project/styles/main.css
+```
+
+### All files updated
+
+Do not silently re-ZIP. Ask the user first:
+
+```
+All files have been updated. Would you like me to:
+1. Re-ZIP everything into a new my-project.zip
+2. Present all files individually
+```
+
+Then act on their choice.
+
+### Never do this
+
+- Re-ZIP the entire project because one file changed
+- Present a partial ZIP containing only the updated files (confusing, breaks structure)
+- Re-ZIP silently without informing the user
 
 ---
 
-## Common Mistake Patterns to Avoid
+## Naming the Root Folder
 
-### ❌ Wrong: `zip -r` from inside the folder
+Priority order:
+
+1. User specified a name → use it exactly
+2. Project has a clear name → derive it (lowercase, hyphen-separated)
+3. Fallback → ZIP filename without extension
+
+| Bad              | Good                 |
+| ---------------- | -------------------- |
+| `Project Files/` | `project-files/`     |
+| `output/`        | `invoice-generator/` |
+| (no root folder) | `dashboard/`         |
+
+---
+
+## Common Mistakes to Avoid
+
+### `zip -r` from inside the folder — strips root folder
 
 ```bash
-cd /home/claude/my-project && zip -r /output/my-project.zip .
-# Produces: my-project.zip/index.html (no root folder!)
+# Wrong
+cd /home/claude/my-project && zip -r output.zip .
+
+# Right — always zip from the parent
+cd /home/claude && zip -r output.zip my-project/
 ```
 
-### ✅ Right: `zip -r` from the parent folder
-
-```bash
-cd /home/claude && zip -r /output/my-project.zip my-project/
-# Produces: my-project.zip/my-project/index.html ✓
-```
-
-### ❌ Wrong: Python zipfile with relative paths from inside
+### Python zipfile with source-relative paths — same problem
 
 ```python
-with zipfile.ZipFile("out.zip", "w") as zf:
-    for f in Path("my-project").rglob("*"):
-        zf.write(f, f.relative_to("my-project"))  # strips root folder!
-```
+# Wrong — strips root folder
+zf.write(file, file.relative_to(source_dir))
 
-### ✅ Right: Use the provided script (it handles this correctly)
-
-```bash
-python scripts/build_zip.py /home/claude/my-project /mnt/user-data/outputs/my-project.zip
+# Right — use build_zip.py, which handles this correctly
 ```
 
 ---
 
 ## Script Reference
 
-See `scripts/build_zip.py` — creates a correctly structured ZIP.
-See `scripts/verify_zip.py` — verifies a ZIP has correct single-root-folder structure.
-See `references/edge-cases.md` — handling monorepos, flat outputs, and special cases.
+- `scripts/build_zip.py` — builds a correctly structured ZIP
+- `scripts/verify_zip.py` — verifies ZIP tree matches expected structure
+- `references/edge-cases.md` — monorepos, flat-by-request, fixing broken ZIPs, symlinks

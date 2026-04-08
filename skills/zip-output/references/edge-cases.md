@@ -9,7 +9,8 @@ Reference doc for `zip-output` skill. Read this when the standard workflow doesn
 Sometimes the user explicitly wants files at the archive root — e.g. for a deployment pipeline that expects it.
 
 **How to handle:**
-- Confirm with the user: *"Just to check — do you want the files at the root of the ZIP, or inside a folder named X?"*
+
+- Confirm with the user: _"Just to check — do you want the files at the root of the ZIP, or inside a folder named X?"_
 - If they confirm flat: use `zip` directly from inside the folder and note the deviation.
 - Never assume flat unless explicitly stated.
 
@@ -20,6 +21,7 @@ Sometimes the user explicitly wants files at the archive root — e.g. for a dep
 User wants `projects.zip` containing `project-a/` and `project-b/` side by side.
 
 **How to handle:**
+
 - Create a staging folder: `/home/claude/projects/`
 - Inside it: `projects/project-a/...` and `projects/project-b/...`
 - Run `build_zip.py /home/claude/projects /output/projects.zip`
@@ -32,6 +34,7 @@ User wants `projects.zip` containing `project-a/` and `project-b/` side by side.
 `build_zip.py` handles this fine — it uses `rglob` which streams lazily. No changes needed.
 
 If the user needs progress feedback during a long pack, you can add a count printout by running with `tee`:
+
 ```bash
 python build_zip.py /home/claude/big-project /output/big-project.zip | tee /tmp/zip-log.txt
 wc -l /tmp/zip-log.txt  # rough file count
