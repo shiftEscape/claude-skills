@@ -33,6 +33,7 @@ This skill activates whenever you ask Claude to:
 - "Zip it up", "give me the files", "package this", "make it downloadable"
 - Export as ZIP or create an archive
 - Produce more than 2 related files that belong together (even without mentioning ZIP)
+- Only zips it if needed - Asks the user first before proceeding
 
 ## Installation
 
