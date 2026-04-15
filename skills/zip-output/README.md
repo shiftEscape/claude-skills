@@ -1,6 +1,6 @@
 # zip-output
 
-Fixes a common pain point: when asked to produce a ZIP file, Claude often dumps files flat at the archive root instead of nesting them inside a properly named folder. This skill enforces the correct structure every time.
+> Fixes a common pain point: when asked to produce a ZIP file, Claude often dumps files flat at the archive root instead of nesting them inside a properly named folder. This skill enforces the correct structure every time.
 
 A Claude Skill by [@shiftEscape](https://github.com/shiftEscape)
 
