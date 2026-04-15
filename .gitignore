@@ -1,6 +1,5 @@
 node_modules/
 dist/
-*.skill
 !skills/**/*.skill
 
 # Python

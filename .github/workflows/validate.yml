@@ -4,13 +4,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'skills/**'
-      - 'scripts/**'
+      - "skills/**"
+      - "scripts/**"
   pull_request:
     branches: [main]
     paths:
-      - 'skills/**'
-      - 'scripts/**'
+      - "skills/**"
+      - "scripts/**"
 
 jobs:
   validate:
@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Validate all skills
         run: node scripts/validate.js
@@ -32,9 +32,26 @@ jobs:
       - name: Package all skills
         run: node scripts/package.js --all
 
-      - name: Upload packaged skills as artifacts
+      - name: Copy .skill files into skills/ folders
+        run: |
+          for skill_file in dist/*.skill; do
+            skill_name=$(basename "$skill_file" .skill)
+            cp "$skill_file" "skills/$skill_name/$skill_name.skill"
+            echo "Copied $skill_name.skill → skills/$skill_name/"
+          done
+
+      - name: Commit .skill files
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add skills/**/*.skill
+          git diff --staged --quiet || git commit -m "chore: update packaged .skill files [skip ci]"
+          git push
+
+      - name: Upload individual skill artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: skill-files
+          name: ${{ github.event.repository.name }}-skills
           path: dist/*.skill
           retention-days: 30
